@@ -1,0 +1,200 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  background-color: #333;
+  padding: 1rem;
+}
+
+.nav-logo {
+  color: white;
+  font-size: 1.5rem;
+}
+
+.nav-links a {
+  color: white;
+  margin-left: 1rem;
+  text-decoration: none;
+}
+
+header {
+  text-align: center;
+  padding: 2rem;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #333;
+  color: white;
+}
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+nav {
+  background: #35424a;
+  color: #ffffff;
+  padding: 10px;
+  text-align: center;
+}
+
+.nav-logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+nav a {
+  color: #ffffff;
+  text-decoration: none;
+  float: right;
+  margin-right: 20px;
+}
+
+#dashboardContent {
+  padding: 20px;
+}
+
+form {
+  margin-bottom: 20px;
+}
+
+input[type="text"] {
+  padding: 10px;
+  width: calc(100% - 110px);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+input[type="password"] {
+  padding: 10px;
+  width: calc(100% - 110px);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #5cb85c;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #4cae4c;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  padding: 10px;
+  background: #ffffff;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+li:hover {
+  background: #e9ecef;
+}
+
+footer {
+  text-align: center;
+  padding: 10px;
+  background: #35424a;
+  color: #ffffff;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+.task-card {
+  background: #ffffff;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-card button {
+  margin-left: 10px;
+  background-color: #dc3545; /* Red for delete */
+}
+
+.task-card .edit-btn {
+  background-color: #007bff; /* Blue for edit */
+}
+
+.task-card button:hover {
+  opacity: 0.8;
+}
+
+.task-card {
+  background: #ffffff;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center; /* Center items vertically */
+  justify-content: space-between; /* Space out elements */
+}
+
+.task-content {
+  display: flex;
+  align-items: center; /* Align items vertically */
+  flex-grow: 1; /* Allow the content to grow */
+}
+
+.task-text {
+  margin-right: 10px; /* Add space between text and toggle button */
+}
+
+button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.toggle-btn {
+  background-color: #007bff; /* Blue for toggle */
+  color: white;
+}
+
+.toggle-btn:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.edit-btn {
+  background-color: #28a745; /* Green for edit */
+  color: white;
+  margin-left: 10px;
+}
+
+.delete-btn {
+  background-color: #dc3545; /* Red for delete */
+  color: white;
+  margin-left: 10px;
+}
+
+button:hover {
+  opacity: 0.8; /* Slightly transparent on hover */
+}
