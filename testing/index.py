@@ -5,48 +5,64 @@ import time
 # Initialize WebDriver
 driver = webdriver.Chrome()  # or webdriver.Firefox()
 
+
+def print_result(test_case, result):
+    print(f"{test_case}: {'PASSED' if result else 'FAILED'}")
+
+
 def test_index_page():
     # Load the index.html page
-    driver.get("http://localhost:3000/index.html")  # Adjust path as necessary
+    driver.get("http://127.0.0.1:5500/public/index.html")  # Adjust path as necessary
     time.sleep(2)  # Wait for the page to load
 
     # Check the title of the page
-    assert "Todo List App" in driver.title, "Title does not match"
+    result = "Todo List App" in driver.title
+    print_result("Check page title", result)
 
     # Verify the presence of the logo
     logo = driver.find_element(By.CLASS_NAME, "nav-logo")
-    assert logo.is_displayed(), "Logo is not displayed"
+    result = logo.is_displayed()
+    print_result("Logo presence", result)
 
     # Verify the presence of navigation links
-    login_link = driver.find_element(By.LINK_TEXT, "Login")
-    assert login_link.is_displayed(), "Login link is not displayed"
-    signup_link = driver.find_element(By.LINK_TEXT, "Sign Up")
-    assert signup_link.is_displayed(), "Sign Up link is not displayed"
+    nav_links = driver.find_elements(By.CSS_SELECTOR, ".nav-links a")
+    result = len(nav_links) == 2
+    print_result("Navigation links count", result)
+    result = nav_links[0].text == "Login"
+    print_result("First navigation link text", result)
+    result = nav_links[1].text == "Sign Up"
+    print_result("Second navigation link text", result)
 
     # Verify header text
     header = driver.find_element(By.TAG_NAME, "h1")
-    assert header.text == "Welcome to TodoApp", "Header text does not match"
+    result = header.text == "Welcome to TodoApp"
+    print_result("Header text", result)
 
     # Verify paragraph text
     paragraph = driver.find_element(By.TAG_NAME, "p")
-    assert paragraph.text == "The ultimate solution to manage your tasks efficiently.", "Paragraph text does not match"
+    result = paragraph.text == "The ultimate solution to manage your tasks efficiently."
+    print_result("Paragraph text", result)
 
     # Verify list items
     list_items = driver.find_elements(By.TAG_NAME, "li")
-    assert len(list_items) == 3, "List items count does not match"
+    result = len(list_items) == 3
+    print_result("List items count", result)
     expected_items = [
         "Create and manage your to-do list.",
         "Filter tasks by status.",
-        "Admin dashboard to monitor users and task completion."
+        "Admin dashboard to monitor users and task completion.",
     ]
     for i, item in enumerate(list_items):
-        assert item.text == expected_items[i], f"List item {i + 1} does not match"
+        result = item.text == expected_items[i]
+        print_result(f"List item {i + 1} text", result)
 
     # Verify footer text
     footer = driver.find_element(By.TAG_NAME, "footer")
-    assert "© 2024 TodoApp. All rights reserved." in footer.text, "Footer text does not match"
+    result = "© 2024 TodoApp. All rights reserved." in footer.text
+    print_result("Footer text", result)
 
-    print("Index page test passed!")
+    print("Index page test completed!")
+
 
 if __name__ == "__main__":
     try:

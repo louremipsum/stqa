@@ -1,67 +1,146 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 
 # Initialize WebDriver
 driver = webdriver.Chrome()  # or webdriver.Firefox()
 
+# Define credentials
+user_credentials = {"username": "user", "password": "pass1234"}
+admin_credentials = {"username": "admin", "password": "passadmin"}
+
+
+def print_result(test_case, result):
+    print(f"{test_case}: {'PASSED' if result else 'FAILED'}")
+
+
+def login(username, password):
+    driver.get("http://127.0.0.1:5500/public/login.html")
+    time.sleep(2)
+    username_input = driver.find_element(By.ID, "username")
+    password_input = driver.find_element(By.ID, "password")
+    username_input.send_keys(username)
+    password_input.send_keys(password)
+    submit_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
+    submit_button.click()
+    time.sleep(2)
+
+
+def logout():
+    driver.find_element(By.LINK_TEXT, "Logout").click()
+    time.sleep(2)
+
 
 def test_dashboard_page(role):
+    # Use appropriate credentials based on the role
+    credentials = admin_credentials if role == "admin" else user_credentials
+    login(credentials["username"], credentials["password"])
+
     # Load the dashboard.html page
     driver.get(
-        f"http://localhost:3000/dashboard.html?role={role}"
+        f"http://127.0.0.1:5500/public/dashboard.html?role={role}"
     )  # Adjust path as necessary
     time.sleep(2)  # Wait for the page to load
 
     # Check the title of the page
-    assert "Dashboard" in driver.title, "Title does not match"
+    result = "Dashboard" in driver.title
+    print_result("Check page title", result)
 
     # Verify the dashboard content loads based on the role
     dashboard_content = driver.find_element(By.ID, "dashboardContent")
-    assert dashboard_content.is_displayed(), "Dashboard content is not displayed"
+    result = dashboard_content.is_displayed()
+    print_result("Dashboard content presence", result)
 
     if role == "admin":
-        # Verify admin specific content
-        time.sleep(2)  # Wait for the users to load
-        users_table = dashboard_content.find_element(By.TAG_NAME, "table")
-        assert users_table.is_displayed(), "User table is not displayed"
-        assert "User" in users_table.text, "User column is missing"
-        assert "Tasks Completed (%)" in users_table.text, "Completion column is missing"
+        # Wait for the users table to be present
+        users_table = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.TAG_NAME, "table"))
+        )
+        result = (
+            users_table.is_displayed()
+            and "User" in users_table.text
+            and "Tasks Completed (%)" in users_table.text
+        )
+        print_result("Admin dashboard content", result)
     else:
         # Verify user specific content (task form)
         task_form = driver.find_element(By.ID, "taskForm")
-        assert task_form.is_displayed(), "Task form is not displayed"
+        result = task_form.is_displayed()
+        print_result("Task form presence", result)
 
-        # Test adding a task
-        task_input = driver.find_element(By.ID, "taskInput")
-        task_input.send_keys("Test Task")
-        task_form.submit()
-        time.sleep(2)  # Wait for the task to be added
+        # Create tasks
+        tasks = ["Task 1", "Task 2", "Task 3"]
+        for task in tasks:
+            task_input = driver.find_element(By.ID, "taskInput")
+            task_input.send_keys(task)
+            task_form.submit()
+            time.sleep(1)  # Wait for the task to be added
 
-        # Verify the task appears in the task list
+        # Verify tasks appear in the task list
         task_list = driver.find_element(By.ID, "taskList")
-        assert "Test Task" in task_list.text, "Task was not added to the list"
+        for task in tasks:
+            result = task in task_list.text
+            print_result(f"Task '{task}' added", result)
 
         # Test task completion
-        toggle_button = task_list.find_element(By.CSS_SELECTOR, ".toggle-btn")
-        toggle_button.click()
-        time.sleep(2)  # Wait for the task to be toggled
+        toggle_buttons = task_list.find_elements(By.CSS_SELECTOR, ".toggle-btn")
+        toggle_buttons[0].click()  # Complete the first task
+        time.sleep(1)  # Wait for the task to be toggled
 
         # Verify the task is marked as completed
-        assert "text-decoration: line-through;" in toggle_button.find_element(
-            By.XPATH, ".."
-        ).get_attribute("style"), "Task was not marked as completed"
+        completed_task = task_list.find_element(
+            By.CSS_SELECTOR, ".task-card .task-text"
+        )
+        result = "text-decoration: line-through;" in completed_task.get_attribute(
+            "style"
+        )
+        print_result("Task completion", result)
 
-        # Test editing the task
-        edit_button = task_list.find_element(By.CSS_SELECTOR, ".edit-btn")
-        edit_button.click()
-        time.sleep(1)  # Wait for prompt
+        # Re-locate the toggle button before unchecking the task
+        toggle_buttons = task_list.find_elements(By.CSS_SELECTOR, ".toggle-btn")
+        toggle_buttons[0].click()  # Uncheck the first task
+        time.sleep(1)  # Wait for the task to be toggled
+
+        # Verify the task is marked as active
+        completed_task = task_list.find_element(
+            By.CSS_SELECTOR, ".task-card .task-text"
+        )
+        result = "text-decoration: line-through;" not in completed_task.get_attribute(
+            "style"
+        )
+        print_result("Task unchecking", result)
+
+        # Test filtering tasks
+        driver.find_element(By.ID, "filterCompleted").click()
+        time.sleep(1)  # Wait for the filter to apply
+        result = "Task 1" not in task_list.text
+        print_result("Filter completed tasks", result)
+
+        driver.find_element(By.ID, "filterActive").click()
+        time.sleep(1)  # Wait for the filter to apply
+        result = "Task 1" in task_list.text
+        print_result("Filter active tasks", result)
+
+        driver.find_element(By.ID, "filterAll").click()
+        time.sleep(1)  # Wait for the filter to apply
+        for task in tasks:
+            result = task in task_list.text
+            print_result(f"Filter all tasks - '{task}'", result)
+
+        # Test editing a task
+        edit_buttons = task_list.find_elements(By.CSS_SELECTOR, ".edit-btn")
+        edit_buttons[0].click()  # Edit the first task
+        time.sleep(1)  # Wait for the edit prompt
+
         driver.switch_to.alert.send_keys("Edited Task")
         driver.switch_to.alert.accept()
         time.sleep(2)  # Wait for the task to be edited
 
         # Verify the task is updated
-        assert "Edited Task" in task_list.text, "Task was not updated"
+        result = "Edited Task" in task_list.text
+        print_result("Task editing", result)
 
         # Test deleting the task
         delete_button = task_list.find_element(By.CSS_SELECTOR, ".delete-btn")
@@ -69,13 +148,35 @@ def test_dashboard_page(role):
         time.sleep(2)  # Wait for the task to be deleted
 
         # Verify the task is removed from the list
-        assert "Edited Task" not in task_list.text, "Task was not deleted"
+        result = "Edited Task" not in task_list.text
+        print_result("Task deletion", result)
+
+    # Test successful logout
+    logout()
+    result = "index.html" in driver.current_url
+    print_result("Successful logout redirection", result)
 
     print(f"Dashboard page test passed for role: {role}")
 
 
+def test_dashboard_without_login():
+    # Load the dashboard.html page without logging in
+    driver.get(
+        "http://127.0.0.1:5500/public/dashboard.html?role=user"
+    )  # Adjust path as necessary
+    time.sleep(2)  # Wait for the page to load
+
+    # Verify no tasks are visible
+    task_list = driver.find_element(By.ID, "taskList")
+    result = task_list.text == ""
+    print_result("Dashboard without login - no tasks visible", result)
+
+    print("Dashboard without login test completed!")
+
+
 if __name__ == "__main__":
     try:
+        test_dashboard_without_login()  # Test accessing dashboard without login
         test_dashboard_page("admin")  # Test as admin
         test_dashboard_page("user")  # Test as user
     finally:

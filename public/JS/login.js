@@ -6,6 +6,16 @@ document
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
+    if (!username) {
+      alert("Username is required");
+      return;
+    }
+
+    if (!password) {
+      alert("Password is required");
+      return;
+    }
+
     const response = await fetch("http://localhost:3000/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
